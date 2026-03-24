@@ -41,6 +41,7 @@ Is this phishing or legit? (p/l):
 * Difficulty levels
 * Timer system
 * Score tracking
+
 ✅ New Features Added
 Difficulty Levels (Easy / Medium / Hard)
 Lives System (3 mistakes max)
