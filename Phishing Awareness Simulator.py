@@ -55,6 +55,19 @@ def save_score(score, total):
     with open("scores.json", "w") as f:
         json.dump(scores, f, indent=4)
 
+def show_high_scores():
+    if os.path.exists("scores.json"):
+        with open("scores.json", "r") as f:
+            scores = json.load(f)
+        if scores:
+            print("\n🏆 Previous Scores:")
+            for s in scores[-5:]:  
+                print(f"Score: {s['score']} / {s['total']}")
+        else:
+            print("\nNo previous scores yet.")
+    else:
+        print("\nNo previous scores yet.")
+
 def choose_difficulty():
     print("Select difficulty: easy / medium / hard")
     while True:
@@ -65,6 +78,7 @@ def choose_difficulty():
 
 def run_simulator():
     print("🔐 Phishing Awareness Simulator 🔐")
+    show_high_scores()
     print("Type 'p' for phishing, 'l' for legit\n")
 
     difficulty = choose_difficulty()
@@ -90,9 +104,10 @@ def run_simulator():
             print("✅ Correct!")
             score += 1
         else:
-            print("❌ Wrong!")
             lives -= 1
+            print("❌ Wrong!")
             print(f"❤️ Lives left: {lives}")
+            print(f"💡 Hint: Look at the link carefully or consider if the offer is too good to be true.")
 
         print(f"💡 Explanation: {email['reason']}")
 
