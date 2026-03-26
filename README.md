@@ -24,10 +24,7 @@ Built-in libraries:
 random
 json
 os
-▶️ How to Run
-git clone https://github.com/yourusername/phishing-awareness-simulator.git
-cd phishing-awareness-simulator
-python main.py
+
 📌 Example
 📩 Message 1 (Level 1):
 Your bank account has been locked! Click here...
