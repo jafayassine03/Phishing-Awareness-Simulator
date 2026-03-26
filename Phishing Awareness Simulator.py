@@ -61,7 +61,7 @@ def show_high_scores():
             scores = json.load(f)
         if scores:
             print("\n🏆 Previous Scores:")
-            for s in scores[-5:]:  
+            for s in scores[-5:]:
                 print(f"Score: {s['score']} / {s['total']}")
         else:
             print("\nNo previous scores yet.")
@@ -86,6 +86,8 @@ def run_simulator():
 
     score = 0
     lives = 3
+    streak = 0
+    level = 1
 
     questions = random.sample(filtered_emails, len(filtered_emails))
 
@@ -94,7 +96,7 @@ def run_simulator():
             print("\n💀 Game Over! You're out of lives.")
             break
 
-        print(f"\n📩 Message {i+1}:")
+        print(f"\n📩 Message {i+1} (Level {level}):")
         print(email["text"])
 
         answer = input("\nIs this phishing or legit? (p/l): ").lower()
@@ -103,14 +105,26 @@ def run_simulator():
            (answer == "l" and email["type"] == "legit"):
             print("✅ Correct!")
             score += 1
+            streak += 1
+
+            if streak % 3 == 0:
+                level += 1
+                print(f"🚀 Level Up! You reached Level {level}!")
+
+            if streak >= 2:
+                print(f"🔥 Streak: {streak} correct answers in a row!")
+
         else:
             lives -= 1
             print("❌ Wrong!")
+            streak = 0
+            print("💥 Streak reset!")
             print(f"❤️ Lives left: {lives}")
-            print(f"💡 Hint: Look at the link carefully or consider if the offer is too good to be true.")
+            print("💡 Hint: Look at the link carefully or consider if the offer is too good to be true.")
 
         print(f"💡 Explanation: {email['reason']}")
 
+    print(f"\n🏅 Final Level: {level}")
     print("\n🎯 Final Score:", score, "/", len(filtered_emails))
 
     save_score(score, len(filtered_emails))
