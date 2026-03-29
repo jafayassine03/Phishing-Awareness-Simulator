@@ -1,6 +1,7 @@
 import random
 import json
 import os
+import time
 
 emails = [
     {
@@ -88,6 +89,7 @@ def run_simulator():
     lives = 3
     streak = 0
     level = 1
+    time_limit = 8  
 
     questions = random.sample(filtered_emails, len(filtered_emails))
 
@@ -98,11 +100,20 @@ def run_simulator():
 
         print(f"\n📩 Message {i+1} (Level {level}):")
         print(email["text"])
+        print(f"\n⏳ You have {time_limit} seconds to answer!")
 
-        answer = input("\nIs this phishing or legit? (p/l): ").lower()
+        start_time = time.time()
+        answer = input("Is this phishing or legit? (p/l): ").lower()
+        end_time = time.time()
 
-        if (answer == "p" and email["type"] == "phishing") or \
-           (answer == "l" and email["type"] == "legit"):
+        if end_time - start_time > time_limit:
+            print("⏰ Time's up!")
+            answer = "timeout"
+
+        if answer != "timeout" and (
+            (answer == "p" and email["type"] == "phishing") or
+            (answer == "l" and email["type"] == "legit")
+        ):
             print("✅ Correct!")
             score += 1
             streak += 1
