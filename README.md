@@ -1,6 +1,6 @@
 🔐 Phishing Awareness Simulator
 
-A Python-based interactive simulator designed to help users recognize and avoid phishing attacks through realistic examples and gamified learning.
+A Python-based interactive simulator designed to help users recognize and avoid phishing attacks through realistic scenarios and gamified learning.
 
 🚀 Features
 🎯 Interactive CLI quiz
@@ -9,6 +9,8 @@ A Python-based interactive simulator designed to help users recognize and avoid 
 ❤️ Lives system (3 mistakes max)
 🔁 Streak tracking (consecutive correct answers)
 🏅 Level system (level up every 3 correct answers)
+⚡ Power-Up system (earn rewards & gain advantages)
+⏱️ Timed responses (adds pressure & realism)
 📊 Score tracking & history saved locally
 🎚️ Difficulty levels (Easy / Medium / Hard)
 🧠 Purpose
@@ -16,7 +18,7 @@ A Python-based interactive simulator designed to help users recognize and avoid 
 This project aims to:
 
 Raise awareness about phishing attacks
-Improve users' ability to spot malicious messages
+Improve users' ability to detect malicious messages
 Provide a fun, gamified way to learn cybersecurity basics
 🛠️ Technologies Used
 Python 3
@@ -24,34 +26,47 @@ Built-in libraries:
 random
 json
 os
-
-📌 Example
+time
+📌 Example Gameplay
 📩 Message 1 (Level 1):
 Your bank account has been locked! Click here...
+
+⏳ You have 8 seconds to answer!
 
 Is this phishing or legit? (p/l):
 
 ✅ Correct!
 🔥 Streak: 2 correct answers in a row!
+⚡ You earned a Power-Up!
 🧩 Game Mechanics
-Start with 3 lives
+Start with 3 lives ❤️
 Lose a life for each wrong answer
-Build a streak by answering correctly
+Build a streak 🔥 by answering correctly
 Every 3 correct answers → Level Up 🚀
-Game ends when:
-You finish all questions ✅
-OR lose all lives 💀
+Earn Power-Ups ⚡ every 2 correct answers
+⚡ Power-Ups
+
+Players can use power-ups to:
+
+⏱️ Add extra time
+❤️ Gain an extra life
+💡 Reveal a hint
+⏱️ Timer System
+Each question has a limited time to answer
+Running out of time counts as a wrong answer
+Adds realism and pressure to simulate real-life decision-making
 📊 Score System
 Final score is displayed at the end
 Scores are saved in scores.json
-Last 5 scores are shown at the start
+Last 5 scores are shown at the start of each game
 🔥 Future Improvements
 🖥️ GUI version (Tkinter / PyQt)
 🌐 Web version (Flask / Django)
-⏱️ Timer / speed mode
-🧠 Smarter, AI-generated phishing examples
+🤖 AI-generated phishing messages (infinite content)
 🏆 Global leaderboard
-📧 Email-like UI simulation
+📧 Email-style interface simulation
+🎵 Sound effects & animations
+📱 Mobile-friendly version
 👨‍💻 Author
 
 Yassine
