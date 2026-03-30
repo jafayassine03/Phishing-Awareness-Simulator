@@ -89,7 +89,7 @@ def run_simulator():
     lives = 3
     streak = 0
     level = 1
-    time_limit = 8  
+    power_ups = 0
 
     questions = random.sample(filtered_emails, len(filtered_emails))
 
@@ -98,9 +98,32 @@ def run_simulator():
             print("\n💀 Game Over! You're out of lives.")
             break
 
+        time_limit = 8 
+
         print(f"\n📩 Message {i+1} (Level {level}):")
         print(email["text"])
         print(f"\n⏳ You have {time_limit} seconds to answer!")
+
+        if power_ups > 0:
+            print(f"\n⚡ Power-Ups available: {power_ups}")
+            use = input("Use power-up? (y/n): ").lower()
+
+            if use == "y":
+                print("1. +3 seconds\n2. +1 life\n3. Show hint")
+                choice = input("Choose power-up: ")
+
+                if choice == "1":
+                    time_limit += 3
+                    print("⏱️ Extra time added!")
+                elif choice == "2":
+                    lives += 1
+                    print("❤️ Extra life gained!")
+                elif choice == "3":
+                    print(f"💡 Hint: {email['reason']}")
+                else:
+                    print("Invalid choice.")
+
+                power_ups -= 1
 
         start_time = time.time()
         answer = input("Is this phishing or legit? (p/l): ").lower()
@@ -117,6 +140,9 @@ def run_simulator():
             print("✅ Correct!")
             score += 1
             streak += 1
+            if streak % 2 == 0:
+                power_ups += 1
+                print(f"⚡ You earned a Power-Up! Total: {power_ups}")
 
             if streak % 3 == 0:
                 level += 1
