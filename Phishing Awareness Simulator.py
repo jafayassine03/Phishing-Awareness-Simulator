@@ -91,6 +91,8 @@ def run_simulator():
     level = 1
     power_ups = 0
 
+    mistakes = []
+
     questions = random.sample(filtered_emails, len(filtered_emails))
 
     for i, email in enumerate(questions):
@@ -140,6 +142,7 @@ def run_simulator():
             print("✅ Correct!")
             score += 1
             streak += 1
+
             if streak % 2 == 0:
                 power_ups += 1
                 print(f"⚡ You earned a Power-Up! Total: {power_ups}")
@@ -159,6 +162,13 @@ def run_simulator():
             print(f"❤️ Lives left: {lives}")
             print("💡 Hint: Look at the link carefully or consider if the offer is too good to be true.")
 
+            mistakes.append({
+                "text": email["text"],
+                "your_answer": answer,
+                "correct": email["type"],
+                "reason": email["reason"]
+            })
+
         print(f"💡 Explanation: {email['reason']}")
 
     print(f"\n🏅 Final Level: {level}")
@@ -172,5 +182,21 @@ def run_simulator():
         print("👍 Good, but stay careful!")
     else:
         print("⚠️ You need more awareness!")
+
+    if mistakes:
+        review = input("\n🔍 Do you want to review your mistakes? (y/n): ").lower()
+        
+        if review == "y":
+            print("\n📘 Reviewing Mistakes:\n")
+            
+            for i, m in enumerate(mistakes, 1):
+                print(f"❌ Mistake {i}:")
+                print(f"Message: {m['text']}")
+                print(f"Your answer: {m['your_answer']}")
+                print(f"Correct answer: {m['correct']}")
+                print(f"Explanation: {m['reason']}")
+                print("-" * 40)
+    else:
+        print("\n🎉 No mistakes! Perfect run!")
 
 run_simulator()
