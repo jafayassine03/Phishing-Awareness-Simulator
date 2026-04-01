@@ -3,16 +3,26 @@
 A Python-based interactive simulator designed to help users recognize and avoid phishing attacks through realistic scenarios and gamified learning.
 
 🚀 Features
+
 🎯 Interactive CLI quiz
-🧠 Real-world phishing vs legit messages
-💡 Instant feedback with explanations
+🧠 Real-world phishing vs legit message scenarios
+💡 Instant feedback with clear explanations
+
 ❤️ Lives system (3 mistakes max)
 🔁 Streak tracking (consecutive correct answers)
 🏅 Level system (level up every 3 correct answers)
+
 ⚡ Power-Up system (earn rewards & gain advantages)
 ⏱️ Timed responses (adds pressure & realism)
-📊 Score tracking & history saved locally
-🎚️ Difficulty levels (Easy / Medium / Hard)
+
+📊 Score tracking with local history saving
+🎚️ Selectable difficulty levels (Easy / Medium / Hard)
+
+🧠 Adaptive difficulty (game adjusts based on your performance)
+✨ XP system (earn points for correct answers)
+🏆 Rank progression (Beginner → Intermediate → Advanced → Expert)
+🔥 Dynamic gameplay (harder challenges as your streak increases)
+
 🧠 Purpose
 
 This project aims to:
