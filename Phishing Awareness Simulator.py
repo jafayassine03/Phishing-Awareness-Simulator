@@ -77,6 +77,16 @@ def choose_difficulty():
             return choice
         print("Invalid choice. Try again.")
 
+def update_rank(xp):
+    if xp >= 15:
+        return "🧠 Expert"
+    elif xp >= 10:
+        return "💻 Advanced"
+    elif xp >= 5:
+        return "🔐 Intermediate"
+    else:
+        return "🟢 Beginner"
+
 def run_simulator():
     print("🔐 Phishing Awareness Simulator 🔐")
     show_high_scores()
@@ -90,15 +100,24 @@ def run_simulator():
     streak = 0
     level = 1
     power_ups = 0
+    xp = 0
+    rank = "🟢 Beginner"
 
     mistakes = []
 
-    questions = random.sample(filtered_emails, len(filtered_emails))
-
-    for i, email in enumerate(questions):
+    for i in range(len(filtered_emails)):
         if lives == 0:
             print("\n💀 Game Over! You're out of lives.")
             break
+
+        if streak >= 3:
+            questions_pool = [e for e in emails if e["difficulty"] in ["medium", "hard"]]
+        elif streak >= 1:
+            questions_pool = [e for e in emails if e["difficulty"] in ["easy", "medium"]]
+        else:
+            questions_pool = [e for e in emails if e["difficulty"] == "easy"]
+
+        email = random.choice(questions_pool)
 
         time_limit = 8 
 
@@ -142,6 +161,10 @@ def run_simulator():
             print("✅ Correct!")
             score += 1
             streak += 1
+            xp += 2
+            rank = update_rank(xp)
+
+            print(f"✨ XP: {xp} | Rank: {rank}")
 
             if streak % 2 == 0:
                 power_ups += 1
@@ -172,6 +195,7 @@ def run_simulator():
         print(f"💡 Explanation: {email['reason']}")
 
     print(f"\n🏅 Final Level: {level}")
+    print(f"🏆 Final Rank: {rank} | XP: {xp}")
     print("\n🎯 Final Score:", score, "/", len(filtered_emails))
 
     save_score(score, len(filtered_emails))
