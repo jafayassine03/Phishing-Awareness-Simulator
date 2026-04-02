@@ -87,6 +87,19 @@ def update_rank(xp):
     else:
         return "🟢 Beginner"
 
+def get_adaptive_pool(performance):
+
+    if performance >= 0.8:
+        pool = [e for e in emails if e["difficulty"] == "hard"]
+
+    elif performance >= 0.5:
+        pool = [e for e in emails if e["difficulty"] in ["medium", "hard"]]
+
+    else:
+        pool = [e for e in emails if e["difficulty"] in ["easy", "medium"]]
+
+    return pool
+
 def run_simulator():
     print("🔐 Phishing Awareness Simulator 🔐")
     show_high_scores()
@@ -106,16 +119,17 @@ def run_simulator():
     mistakes = []
 
     for i in range(len(filtered_emails)):
+
         if lives == 0:
             print("\n💀 Game Over! You're out of lives.")
             break
 
-        if streak >= 3:
-            questions_pool = [e for e in emails if e["difficulty"] in ["medium", "hard"]]
-        elif streak >= 1:
-            questions_pool = [e for e in emails if e["difficulty"] in ["easy", "medium"]]
+        if i == 0:
+            performance = 0
         else:
-            questions_pool = [e for e in emails if e["difficulty"] == "easy"]
+            performance = score / i
+
+        questions_pool = get_adaptive_pool(performance)
 
         email = random.choice(questions_pool)
 
