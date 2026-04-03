@@ -88,17 +88,18 @@ def update_rank(xp):
         return "🟢 Beginner"
 
 def get_adaptive_pool(performance):
-
     if performance >= 0.8:
         pool = [e for e in emails if e["difficulty"] == "hard"]
-
     elif performance >= 0.5:
         pool = [e for e in emails if e["difficulty"] in ["medium", "hard"]]
-
     else:
         pool = [e for e in emails if e["difficulty"] in ["easy", "medium"]]
-
     return pool
+
+def get_streak_multiplier(streak):
+    if streak >= 5:
+        return 2
+    return 1
 
 def run_simulator():
     print("🔐 Phishing Awareness Simulator 🔐")
@@ -115,6 +116,7 @@ def run_simulator():
     power_ups = 0
     xp = 0
     rank = "🟢 Beginner"
+    skipped = 0
 
     mistakes = []
 
@@ -130,10 +132,9 @@ def run_simulator():
             performance = score / i
 
         questions_pool = get_adaptive_pool(performance)
-
         email = random.choice(questions_pool)
 
-        time_limit = 8 
+        time_limit = 8
 
         print(f"\n📩 Message {i+1} (Level {level}):")
         print(email["text"])
@@ -144,7 +145,7 @@ def run_simulator():
             use = input("Use power-up? (y/n): ").lower()
 
             if use == "y":
-                print("1. +3 seconds\n2. +1 life\n3. Show hint")
+                print("1. +3 seconds\n2. +1 life\n3. Show hint\n4. Skip question")
                 choice = input("Choose power-up: ")
 
                 if choice == "1":
@@ -155,6 +156,11 @@ def run_simulator():
                     print("❤️ Extra life gained!")
                 elif choice == "3":
                     print(f"💡 Hint: {email['reason']}")
+                elif choice == "4":
+                    print("⏭️ Question skipped!")
+                    power_ups -= 1
+                    skipped += 1
+                    continue
                 else:
                     print("Invalid choice.")
 
@@ -172,13 +178,16 @@ def run_simulator():
             (answer == "p" and email["type"] == "phishing") or
             (answer == "l" and email["type"] == "legit")
         ):
+            multiplier = get_streak_multiplier(streak)
+            gained_xp = 2 * multiplier
+
             print("✅ Correct!")
             score += 1
             streak += 1
-            xp += 2
+            xp += gained_xp
             rank = update_rank(xp)
 
-            print(f"✨ XP: {xp} | Rank: {rank}")
+            print(f"✨ XP: {xp} (+{gained_xp}) | Rank: {rank}")
 
             if streak % 2 == 0:
                 power_ups += 1
@@ -210,6 +219,7 @@ def run_simulator():
 
     print(f"\n🏅 Final Level: {level}")
     print(f"🏆 Final Rank: {rank} | XP: {xp}")
+    print(f"⏭️ Skipped Questions: {skipped}")
     print("\n🎯 Final Score:", score, "/", len(filtered_emails))
 
     save_score(score, len(filtered_emails))
