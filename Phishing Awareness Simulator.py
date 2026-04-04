@@ -42,6 +42,63 @@ emails = [
     }
 ]
 
+# ---------------- DAILY CHALLENGE ----------------
+
+def get_today_date():
+    return time.strftime("%Y-%m-%d")
+
+def load_daily_data():
+    if os.path.exists("daily.json"):
+        with open("daily.json", "r") as f:
+            return json.load(f)
+    return {}
+
+def save_daily_data(data):
+    with open("daily.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def daily_challenge():
+    data = load_daily_data()
+    today = get_today_date()
+
+    if data.get("last_played") == today:
+        print("📅 You already completed today's challenge. Come back tomorrow!")
+        return
+
+    print("\n🔥 DAILY CHALLENGE MODE 🔥")
+    print("🎯 Bonus XP enabled!")
+
+    questions = random.sample(emails, min(3, len(emails)))
+
+    score = 0
+    xp = 0
+
+    for i, email in enumerate(questions, 1):
+        print(f"\n📩 Challenge {i}:")
+        print(email["text"])
+
+        answer = input("Phishing or legit? (p/l): ").lower()
+
+        if (
+            (answer == "p" and email["type"] == "phishing") or
+            (answer == "l" and email["type"] == "legit")
+        ):
+            print("✅ Correct!")
+            score += 1
+            xp += 5
+        else:
+            print("❌ Wrong!")
+
+        print(f"💡 {email['reason']}")
+
+    print(f"\n🏆 Daily Score: {score}/{len(questions)}")
+    print(f"✨ Bonus XP Earned: {xp}")
+
+    data["last_played"] = today
+    save_daily_data(data)
+
+# ---------------- NORMAL SYSTEM ----------------
+
 def save_score(score, total):
     data = {"score": score, "total": total}
     
@@ -104,6 +161,17 @@ def get_streak_multiplier(streak):
 def run_simulator():
     print("🔐 Phishing Awareness Simulator 🔐")
     show_high_scores()
+
+    print("\nChoose mode:")
+    print("1. Normal Mode")
+    print("2. Daily Challenge")
+
+    mode = input("👉 ").strip()
+
+    if mode == "2":
+        daily_challenge()
+        return
+
     print("Type 'p' for phishing, 'l' for legit\n")
 
     difficulty = choose_difficulty()
@@ -117,20 +185,15 @@ def run_simulator():
     xp = 0
     rank = "🟢 Beginner"
     skipped = 0
-
     mistakes = []
 
     for i in range(len(filtered_emails)):
 
         if lives == 0:
-            print("\n💀 Game Over! You're out of lives.")
+            print("\n💀 Game Over!")
             break
 
-        if i == 0:
-            performance = 0
-        else:
-            performance = score / i
-
+        performance = score / i if i > 0 else 0
         questions_pool = get_adaptive_pool(performance)
         email = random.choice(questions_pool)
 
@@ -138,41 +201,36 @@ def run_simulator():
 
         print(f"\n📩 Message {i+1} (Level {level}):")
         print(email["text"])
-        print(f"\n⏳ You have {time_limit} seconds to answer!")
+        print(f"\n⏳ You have {time_limit} seconds!")
 
         if power_ups > 0:
-            print(f"\n⚡ Power-Ups available: {power_ups}")
+            print(f"\n⚡ Power-Ups: {power_ups}")
             use = input("Use power-up? (y/n): ").lower()
 
             if use == "y":
-                print("1. +3 seconds\n2. +1 life\n3. Show hint\n4. Skip question")
-                choice = input("Choose power-up: ")
+                print("1. +3 seconds\n2. +1 life\n3. Show hint\n4. Skip")
+                choice = input("Choose: ")
 
                 if choice == "1":
                     time_limit += 3
-                    print("⏱️ Extra time added!")
                 elif choice == "2":
                     lives += 1
-                    print("❤️ Extra life gained!")
                 elif choice == "3":
-                    print(f"💡 Hint: {email['reason']}")
+                    print(f"💡 {email['reason']}")
                 elif choice == "4":
-                    print("⏭️ Question skipped!")
                     power_ups -= 1
                     skipped += 1
                     continue
-                else:
-                    print("Invalid choice.")
 
                 power_ups -= 1
 
-        start_time = time.time()
-        answer = input("Is this phishing or legit? (p/l): ").lower()
-        end_time = time.time()
+        start = time.time()
+        answer = input("Phishing or legit? (p/l): ").lower()
+        end = time.time()
 
-        if end_time - start_time > time_limit:
-            print("⏰ Time's up!")
+        if end - start > time_limit:
             answer = "timeout"
+            print("⏰ Time's up!")
 
         if answer != "timeout" and (
             (answer == "p" and email["type"] == "phishing") or
@@ -191,22 +249,17 @@ def run_simulator():
 
             if streak % 2 == 0:
                 power_ups += 1
-                print(f"⚡ You earned a Power-Up! Total: {power_ups}")
+                print("⚡ Power-Up earned!")
 
             if streak % 3 == 0:
                 level += 1
-                print(f"🚀 Level Up! You reached Level {level}!")
-
-            if streak >= 2:
-                print(f"🔥 Streak: {streak} correct answers in a row!")
+                print(f"🚀 Level {level}!")
 
         else:
             lives -= 1
-            print("❌ Wrong!")
             streak = 0
-            print("💥 Streak reset!")
-            print(f"❤️ Lives left: {lives}")
-            print("💡 Hint: Look at the link carefully or consider if the offer is too good to be true.")
+            print("❌ Wrong!")
+            print(f"❤️ Lives: {lives}")
 
             mistakes.append({
                 "text": email["text"],
@@ -215,36 +268,21 @@ def run_simulator():
                 "reason": email["reason"]
             })
 
-        print(f"💡 Explanation: {email['reason']}")
+        print(f"💡 {email['reason']}")
 
-    print(f"\n🏅 Final Level: {level}")
-    print(f"🏆 Final Rank: {rank} | XP: {xp}")
-    print(f"⏭️ Skipped Questions: {skipped}")
-    print("\n🎯 Final Score:", score, "/", len(filtered_emails))
+    print(f"\n🏆 Score: {score}/{len(filtered_emails)}")
+    print(f"🏅 Rank: {rank} | XP: {xp}")
 
     save_score(score, len(filtered_emails))
 
-    if score == len(filtered_emails):
-        print("🔥 Excellent! You're phishing-aware!")
-    elif score >= len(filtered_emails) // 2:
-        print("👍 Good, but stay careful!")
-    else:
-        print("⚠️ You need more awareness!")
-
     if mistakes:
-        review = input("\n🔍 Do you want to review your mistakes? (y/n): ").lower()
-        
+        review = input("\nReview mistakes? (y/n): ").lower()
         if review == "y":
-            print("\n📘 Reviewing Mistakes:\n")
-            
-            for i, m in enumerate(mistakes, 1):
-                print(f"❌ Mistake {i}:")
-                print(f"Message: {m['text']}")
-                print(f"Your answer: {m['your_answer']}")
-                print(f"Correct answer: {m['correct']}")
-                print(f"Explanation: {m['reason']}")
-                print("-" * 40)
-    else:
-        print("\n🎉 No mistakes! Perfect run!")
+            for m in mistakes:
+                print("\n---")
+                print(m["text"])
+                print("You:", m["your_answer"])
+                print("Correct:", m["correct"])
+                print("Why:", m["reason"])
 
 run_simulator()
