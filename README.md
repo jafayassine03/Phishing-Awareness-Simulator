@@ -12,17 +12,23 @@ A Python-based interactive simulator designed to help users recognize and avoid 
 🔁 Streak tracking (consecutive correct answers)
 🏅 Level system (level up every 3 correct answers)
 
-⚡ Power-Up system (earn rewards & gain advantages)
+⚡ Power-up system (earn rewards & gain advantages)
 ⏱️ Timed responses (adds pressure & realism)
 
 📊 Score tracking with local history saving
-🎚️ Selectable difficulty levels (Easy / Medium / Hard)
+🏆 Leaderboard system with top scores
 
-🧠 Adaptive difficulty (game adjusts based on your performance)
+🎚️ Selectable difficulty levels (Easy / Medium / Hard)
+🧠 Adaptive difficulty (adjusts based on your performance)
+
 ✨ XP system (earn points for correct answers)
 🏆 Rank progression (Beginner → Intermediate → Advanced → Expert)
-🔥 Dynamic gameplay (harder challenges as your streak increases)
 
+🔥 Dynamic gameplay (difficulty increases with streak and performance)
+📅 Daily challenge mode (bonus XP rewards)
+
+🔍 Mistake review system (learn from errors with explanations)
+👤 Username-based progress tracking
 🧠 Purpose
 
 This project aims to:
