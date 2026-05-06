@@ -26,6 +26,7 @@ A Python-based interactive simulator designed to help users recognize and avoid 
 
 🔥 Dynamic gameplay (difficulty increases with streak and performance)
 📅 Daily challenge mode (bonus XP rewards)
+🧠 Achievements system
 
 🔍 Mistake review system (learn from errors with explanations)
 👤 Username-based progress tracking
