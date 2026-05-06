@@ -25,6 +25,28 @@ def save_json(file, data):
     with open(file, "w") as f:
         json.dump(data, f, indent=4)
 
+def unlock_achievements(username, score, streak, xp):
+    data = load_json("achievements.json")
+    user_ach = data.get(username, [])
+
+    new = []
+
+    if score >= 3 and "Sharp Eye" not in user_ach:
+        new.append("Sharp Eye")
+    if streak >= 5 and "Hot Streak" not in user_ach:
+        new.append("Hot Streak")
+    if xp >= 20 and "XP Hunter" not in user_ach:
+        new.append("XP Hunter")
+
+    if new:
+        print("\nAchievements unlocked:")
+        for a in new:
+            print(a)
+        user_ach.extend(new)
+
+    data[username] = user_ach
+    save_json("achievements.json", data)
+
 def daily_challenge(username):
     data = load_json("daily.json")
     today = get_today_date()
@@ -203,6 +225,7 @@ def run_simulator():
     print(f"Rank: {rank} XP: {xp}")
 
     save_score(username, score, len(filtered_emails))
+    unlock_achievements(username, score, streak, xp)
 
     if mistakes:
         review = input("Review mistakes? (y/n): ").lower()
