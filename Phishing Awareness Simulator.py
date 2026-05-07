@@ -9,7 +9,10 @@ emails = [
     {"text": "You've won a free iPhone! Claim now: http://free-iphone-win.net", "type": "phishing", "reason": "Too good to be true + fake link.", "difficulty": "medium"},
     {"text": "Reminder: Your university class starts at 10 AM tomorrow.", "type": "legit", "reason": "Normal message, no suspicious links.", "difficulty": "easy"},
     {"text": "Unusual login detected! Reset your password immediately: http://secure-reset-password.co", "type": "phishing", "reason": "Fake domain + urgency.", "difficulty": "medium"},
-    {"text": "Dear user, we noticed unusual billing activity. Please login via https://billing-secure-paypal.com to confirm.", "type": "phishing", "reason": "Looks real but domain is fake.", "difficulty": "hard"}
+    {"text": "Dear user, we noticed unusual billing activity. Please login via https://billing-secure-paypal.com to confirm.", "type": "phishing", "reason": "Looks real but domain is fake.", "difficulty": "hard"},
+    {"text": "Netflix: Your subscription payment failed. Update billing info now.", "type": "phishing", "reason": "Urgency tactic and fake billing scare.", "difficulty": "medium"},
+    {"text": "Your package is out for delivery today.", "type": "legit", "reason": "Simple notification with no suspicious behavior.", "difficulty": "easy"},
+    {"text": "Google Security Alert: Someone tried signing into your account.", "type": "legit", "reason": "Realistic trusted alert.", "difficulty": "hard"}
 ]
 
 def get_today_date():
@@ -25,7 +28,7 @@ def save_json(file, data):
     with open(file, "w") as f:
         json.dump(data, f, indent=4)
 
-def unlock_achievements(username, score, streak, xp):
+def unlock_achievements(username, score, streak, xp, perfect_games):
     data = load_json("achievements.json")
     user_ach = data.get(username, [])
 
@@ -33,10 +36,15 @@ def unlock_achievements(username, score, streak, xp):
 
     if score >= 3 and "Sharp Eye" not in user_ach:
         new.append("Sharp Eye")
+
     if streak >= 5 and "Hot Streak" not in user_ach:
         new.append("Hot Streak")
+
     if xp >= 20 and "XP Hunter" not in user_ach:
         new.append("XP Hunter")
+
+    if perfect_games >= 1 and "Perfect Run" not in user_ach:
+        new.append("Perfect Run")
 
     if new:
         print("\nAchievements unlocked:")
@@ -64,6 +72,7 @@ def daily_challenge(username):
     for i, email in enumerate(questions, 1):
         print(f"\nChallenge {i}:")
         print(email["text"])
+
         answer = input("Phishing or legit? (p/l): ").lower()
 
         if (answer == "p" and email["type"] == "phishing") or (answer == "l" and email["type"] == "legit"):
@@ -83,16 +92,23 @@ def daily_challenge(username):
 
 def save_score(username, score, total):
     scores = load_json("scores.json")
+
     if not isinstance(scores, list):
         scores = []
 
-    scores.append({"user": username, "score": score, "total": total})
+    scores.append({
+        "user": username,
+        "score": score,
+        "total": total
+    })
+
     scores = sorted(scores, key=lambda x: x["score"], reverse=True)[:10]
 
     save_json("scores.json", scores)
 
 def show_high_scores():
     scores = load_json("scores.json")
+
     if isinstance(scores, list) and scores:
         print("\nLeaderboard:")
         for s in scores:
@@ -103,11 +119,14 @@ def show_high_scores():
 def choose_difficulty():
     while True:
         choice = input("Select difficulty (easy/medium/hard): ").lower()
+
         if choice in ["easy", "medium", "hard"]:
             return choice
 
 def update_rank(xp):
-    if xp >= 15:
+    if xp >= 30:
+        return "Master"
+    elif xp >= 20:
         return "Expert"
     elif xp >= 10:
         return "Advanced"
@@ -119,18 +138,68 @@ def update_rank(xp):
 def get_adaptive_pool(performance):
     if performance >= 0.8:
         return [e for e in emails if e["difficulty"] == "hard"]
+
     elif performance >= 0.5:
         return [e for e in emails if e["difficulty"] in ["medium", "hard"]]
+
     return [e for e in emails if e["difficulty"] in ["easy", "medium"]]
 
 def get_streak_multiplier(streak):
     return 2 if streak >= 5 else 1
 
+def save_profile(username, xp, wins):
+    data = load_json("profiles.json")
+
+    if username not in data:
+        data[username] = {
+            "xp": 0,
+            "wins": 0
+        }
+
+    data[username]["xp"] += xp
+    data[username]["wins"] += wins
+
+    save_json("profiles.json", data)
+
+def show_profile(username):
+    data = load_json("profiles.json")
+
+    if username not in data:
+        print("\nNo profile data yet")
+        return
+
+    profile = data[username]
+
+    print("\nProfile Stats")
+    print(f"Total XP: {profile['xp']}")
+    print(f"Wins: {profile['wins']}")
+    print(f"Global Rank: {update_rank(profile['xp'])}")
+
+def spin_reward_wheel():
+    rewards = [
+        "1 extra life",
+        "2 power-ups",
+        "5 bonus XP",
+        "Nothing",
+        "Double XP next round"
+    ]
+
+    reward = random.choice(rewards)
+
+    print("\nSpinning reward wheel...")
+    time.sleep(2)
+
+    print(f"You won: {reward}")
+
+    return reward
+
 def run_simulator():
     print("Phishing Awareness Simulator")
 
     username = input("Enter your username: ").strip()
+
     show_high_scores()
+    show_profile(username)
 
     print("\n1. Normal Mode")
     print("2. Daily Challenge")
@@ -142,6 +211,7 @@ def run_simulator():
         return
 
     difficulty = choose_difficulty()
+
     filtered_emails = [e for e in emails if e["difficulty"] == difficulty]
 
     score = 0
@@ -152,13 +222,17 @@ def run_simulator():
     xp = 0
     rank = "Beginner"
     mistakes = []
+    perfect_games = 0
+    double_xp = False
 
     for i in range(len(filtered_emails)):
+
         if lives == 0:
             print("\nGame Over")
             break
 
         performance = score / i if i > 0 else 0
+
         email = random.choice(get_adaptive_pool(performance))
 
         time_limit = 8
@@ -169,46 +243,92 @@ def run_simulator():
 
         if power_ups > 0:
             use = input("Use power-up? (y/n): ").lower()
+
             if use == "y":
-                print("1. +3 seconds\n2. +1 life\n3. Hint\n4. Skip")
+                print("1. +3 seconds")
+                print("2. +1 life")
+                print("3. Hint")
+                print("4. Skip")
+
                 choice = input("Choose: ")
+
                 if choice == "1":
                     time_limit += 3
+
                 elif choice == "2":
                     lives += 1
+
                 elif choice == "3":
                     print(email["reason"])
+
                 elif choice == "4":
                     power_ups -= 1
                     continue
+
                 power_ups -= 1
 
         start = time.time()
+
         answer = input("Phishing or legit? (p/l): ").lower()
+
         end = time.time()
 
         if end - start > time_limit:
             answer = "timeout"
             print("Time up")
 
-        if answer != "timeout" and ((answer == "p" and email["type"] == "phishing") or (answer == "l" and email["type"] == "legit")):
+        correct = (
+            answer != "timeout" and
+            (
+                (answer == "p" and email["type"] == "phishing") or
+                (answer == "l" and email["type"] == "legit")
+            )
+        )
+
+        if correct:
             multiplier = get_streak_multiplier(streak)
+
             gained_xp = 2 * multiplier
 
+            if double_xp:
+                gained_xp *= 2
+                double_xp = False
+
             print("Correct")
+
             score += 1
             streak += 1
             xp += gained_xp
+
             rank = update_rank(xp)
 
             if streak % 2 == 0:
                 power_ups += 1
+                print("Power-up earned")
 
             if streak % 3 == 0:
                 level += 1
+                print(f"Level up -> {level}")
+
+            if streak % 4 == 0:
+                reward = spin_reward_wheel()
+
+                if reward == "1 extra life":
+                    lives += 1
+
+                elif reward == "2 power-ups":
+                    power_ups += 2
+
+                elif reward == "5 bonus XP":
+                    xp += 5
+
+                elif reward == "Double XP next round":
+                    double_xp = True
+
         else:
             lives -= 1
             streak = 0
+
             print("Wrong")
             print(f"Lives: {lives}")
 
@@ -221,17 +341,30 @@ def run_simulator():
 
         print(email["reason"])
 
-    print(f"\nFinal Score: {score}/{len(filtered_emails)}")
-    print(f"Rank: {rank} XP: {xp}")
+        print(f"Score: {score}")
+        print(f"XP: {xp}")
+        print(f"Rank: {rank}")
+        print(f"Lives: {lives}")
+        print(f"Power-ups: {power_ups}")
 
+    if score == len(filtered_emails):
+        perfect_games += 1
+
+    print(f"\nFinal Score: {score}/{len(filtered_emails)}")
+    print(f"Rank: {rank}")
+    print(f"XP: {xp}")
+
+    save_profile(username, xp, score)
     save_score(username, score, len(filtered_emails))
-    unlock_achievements(username, score, streak, xp)
+
+    unlock_achievements(username, score, streak, xp, perfect_games)
 
     if mistakes:
         review = input("Review mistakes? (y/n): ").lower()
+
         if review == "y":
             for m in mistakes:
-                print("\n---")
+                print("\n-------------------")
                 print(m["text"])
                 print("You:", m["your_answer"])
                 print("Correct:", m["correct"])
