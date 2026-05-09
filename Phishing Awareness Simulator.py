@@ -153,11 +153,13 @@ def save_profile(username, xp, wins):
     if username not in data:
         data[username] = {
             "xp": 0,
-            "wins": 0
+            "wins": 0,
+            "coins": 0
         }
 
     data[username]["xp"] += xp
     data[username]["wins"] += wins
+    data[username]["coins"] += xp // 2
 
     save_json("profiles.json", data)
 
@@ -173,6 +175,7 @@ def show_profile(username):
     print("\nProfile Stats")
     print(f"Total XP: {profile['xp']}")
     print(f"Wins: {profile['wins']}")
+    print(f"Coins: {profile['coins']}")
     print(f"Global Rank: {update_rank(profile['xp'])}")
 
 def spin_reward_wheel():
@@ -193,6 +196,41 @@ def spin_reward_wheel():
 
     return reward
 
+def shop(username):
+    data = load_json("profiles.json")
+
+    if username not in data:
+        print("No profile found")
+        return
+
+    coins = data[username]["coins"]
+
+    print("\nShop")
+    print(f"Coins: {coins}")
+    print("1. Buy 1 extra life (5 coins)")
+    print("2. Buy 1 power-up (3 coins)")
+    print("3. Exit")
+
+    choice = input("Choose: ")
+
+    if choice == "1":
+        if coins >= 5:
+            data[username]["coins"] -= 5
+            data[username]["extra_life"] = data[username].get("extra_life", 0) + 1
+            print("Extra life purchased")
+        else:
+            print("Not enough coins")
+
+    elif choice == "2":
+        if coins >= 3:
+            data[username]["coins"] -= 3
+            data[username]["bonus_powerups"] = data[username].get("bonus_powerups", 0) + 1
+            print("Power-up purchased")
+        else:
+            print("Not enough coins")
+
+    save_json("profiles.json", data)
+
 def run_simulator():
     print("Phishing Awareness Simulator")
 
@@ -203,6 +241,7 @@ def run_simulator():
 
     print("\n1. Normal Mode")
     print("2. Daily Challenge")
+    print("3. Shop")
 
     mode = input("Choose mode: ").strip()
 
@@ -210,15 +249,33 @@ def run_simulator():
         daily_challenge(username)
         return
 
+    if mode == "3":
+        shop(username)
+        return
+
     difficulty = choose_difficulty()
 
     filtered_emails = [e for e in emails if e["difficulty"] == difficulty]
 
+    profile_data = load_json("profiles.json")
+
+    bonus_life = 0
+    bonus_powerups = 0
+
+    if username in profile_data:
+        bonus_life = profile_data[username].get("extra_life", 0)
+        bonus_powerups = profile_data[username].get("bonus_powerups", 0)
+
+        profile_data[username]["extra_life"] = 0
+        profile_data[username]["bonus_powerups"] = 0
+
+        save_json("profiles.json", profile_data)
+
     score = 0
-    lives = 3
+    lives = 3 + bonus_life
     streak = 0
     level = 1
-    power_ups = 0
+    power_ups = bonus_powerups
     xp = 0
     rank = "Beginner"
     mistakes = []
